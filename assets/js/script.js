@@ -1,7 +1,9 @@
 var searchBtn = document.getElementById("searchBtn");
 var cityEl = document.getElementById("city");
 var cityHistoryEl = document.getElementById("cityHistory");
+var locationEl = document.getElementById("location");
 var cityArray = [];
+
 var getCityName = function () {
 	JSON.parse(localStorage.getItem("cityList")) || [];
 };
@@ -13,7 +15,7 @@ var setCityName = function () {
 // in local storage, call the city back into buttons
 //include rendering the buttons
 var limit;
-var renderCity = function () {
+var renderCityHistory = function () {
 	if (cityArray.length < 10) {
 		limit = cityArray.length;
 	} else {
@@ -26,6 +28,13 @@ var renderCity = function () {
 		btnEl.setAttribute("class", "cityHistoryBtn");
 		cityHistoryEl.appendChild(btnEl);
 	}
+
+	// if history button is pressed, then get the city name and run the getCoordinates function
+	btnEl.addEventListener("click", function (event) {
+		event.preventDefault();
+		getCoordinates(cityArray[i]);
+	});
+
 	// forEach(function (item) {
 	// 	var btnEl = document.createElement("button");
 	// 	btnEl.textContent = `${item}`;
@@ -46,21 +55,25 @@ searchBtn.addEventListener("click", function (event) {
 		setCityName();
 	}
 	getCityName();
-	renderCity();
+	renderCityHistory();
 	getCoordinates();
 });
 
 // to locate the city, we need longitude and latitute
-var getCoordinates = function (cityName) {
+var getCoordinates = function (cityCoordinates) {
 	var coordinates =
 		"http://api.openweathermap.org/geo/1.0/direct?q=" +
-		cityName +
+		cityCoordinates +
 		"&limit={limit}&appid=72089c6cb9be7989ea34e3e3aad0d5ed";
 
 	fetch(coordinates).then(function (response) {
 		if (response.ok) {
 			response.json().then(function (data) {
-				getWeather(data);
+				var cityNameEl = document.createElement("h3");
+				cityNameEl.textContent = data.name;
+				locationEl.appendChild(cityNameEl);
+
+				getCityWeather(data.lat, data.lon);
 			});
 		} else {
 			location.reload();
@@ -71,14 +84,43 @@ var getCoordinates = function (cityName) {
 // order matters when rendering history values
 
 // with the longitute and latitute, we can pinpoint the city and the name will appear along with the date (maybe use moment to show current date)
+var getCityWeather = function (cityLat, cityLon) {
+	var apiUrl =
+		"https://api.openweathermap.org/data/2.5/onecall?lat=" +
+		cityLat +
+		"&lon=" +
+		cityLon +
+		"&appid=72089c6cb9be7989ea34e3e3aad0d5ed";
 
-var apiUrl =
-	"https://api.openweathermap.org/data/2.5/onecall?lat={lat}&lon={lon}&exclude={part}&appid=72089c6cb9be7989ea34e3e3aad0d5ed";
+	fetch(apiUrl).then(function (response1) {
+		if (response1.ok) {
+			response1.json().then(function (weatherDetails) {
+				showCityweather(weatherDetails);
+			});
+		}
+	});
+};
 
 // data that we will need to show is are the temerature, wind, humidity and UV index:
+var showCityWeather = function (placeholder) {
+	var temperatureEl = locationEl.createElement("span");
+	temperatureEl.textContent = "Temp: " + placeholder.current.temp;
+	locationEl.appendChild(temperatureEl);
 
-//as for the forecast, we will use the long and lat to pin point the city and create the forecast based on today's date
+	var windSpeedEl = locationEl.createElement("span");
+	windSpeedEl.textContent = "Wind: " + placeholder.current.wind_speed;
+	locationEl.appendChild(windSpeedEl);
+
+	var humidityEl = locationEl.createElement("span");
+	humidityEl.textContent = "Humidity: " + placeholder.current.temp;
+	locationEl.appendChild(humidityEl);
+
+	var uviEl = locationEl.createElement("span");
+	uviEl.textContent = "UV Index: " + placeholder.current.temp;
+	locationEl.appendChild(uviEl);
+};
+
+//as for the forecast, we will use the lon and lat to pin point the city and create the forecast based on today's date
 // same thing for the temp, wind, and humidity
 
-// upon typing the city name, we will need to save the city name up to the local storage and call it down as a button
-// set it so that upon clicking the button, the value or text on the button will trigger the search function and pinpoint again
+//5 day will basically follow same format as city weather, except we have to create 5 different containers, basically 1 extra step in creating the container for 5 day
