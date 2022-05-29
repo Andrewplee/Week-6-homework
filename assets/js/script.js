@@ -2,6 +2,8 @@ var searchBtn = document.getElementById("searchBtn");
 var cityEl = document.getElementById("city");
 var cityHistoryEl = document.getElementById("cityHistory");
 var locationEl = document.getElementById("location");
+var forecastEl = document.getElementById("forecast");
+var currentTDEl = moment().format("l");
 var cityArray = [];
 
 var getCityName = function () {
@@ -76,6 +78,7 @@ searchBtn.addEventListener("click", function (event) {
 // to locate the city, we need longitude and latitute
 var getCoordinates = function (cityName) {
 	locationEl.textContent = "";
+	forecastEl.textContent = "";
 	var coordinates =
 		"http://api.openweathermap.org/geo/1.0/direct?q=" +
 		cityName +
@@ -85,15 +88,12 @@ var getCoordinates = function (cityName) {
 		if (response.ok) {
 			response.json().then(function (data) {
 				var cityNameEl = document.createElement("h3");
-				cityNameEl.textContent = data[0].name;
+				cityNameEl.textContent = data[0].name + " " + currentTDEl;
 				locationEl.appendChild(cityNameEl);
 				console.log(data);
 				getCityWeather(data[0].lat, data[0].lon);
 			});
 		}
-		//  else {
-		// 	location.reload();
-		// }
 	});
 };
 
@@ -105,7 +105,6 @@ var showCityWeather = function (placeholder) {
 		"src",
 		`http://openweathermap.org/img/wn/${placeholder.current.weather[0].icon}@2x.png`
 	);
-
 	locationEl.appendChild(imgEl);
 
 	var temperatureEl = document.createElement("div");
@@ -113,58 +112,63 @@ var showCityWeather = function (placeholder) {
 	locationEl.appendChild(temperatureEl);
 
 	var windSpeedEl = document.createElement("div");
-	windSpeedEl.textContent = "Wind: " + placeholder.current.wind_speed;
+	windSpeedEl.textContent = "Wind: " + placeholder.current.wind_speed + " MPH";
 	locationEl.appendChild(windSpeedEl);
 
 	var humidityEl = document.createElement("div");
-	humidityEl.textContent = "Humidity: " + placeholder.current.humidity;
+	humidityEl.textContent = "Humidity: " + placeholder.current.humidity + " %";
 	locationEl.appendChild(humidityEl);
 
 	var uviEl = document.createElement("div");
 	uviEl.textContent = "UV Index: " + placeholder.current.uvi;
 	locationEl.appendChild(uviEl);
+
+	if (placeholder.current.uvi <= 2) {
+		uviEl.setAttribute("style", "color: green");
+	} else if (placeholder.current.uvi <= 7) {
+		uviEl.setAttribute("style", "color: yellow");
+	} else if (placeholder.current.uvi <= 10) {
+		uviEl.setAttribute("style", "color: red");
+	} else {
+		uviEl.setAttribute("style", "color: purple");
+	}
 };
 
 //as for the forecast, we will use the lon and lat to pinpoint the city and create the forecast based on today's date
 // same thing for the temp, wind, and humidity
-var showForecastWeather = function (placeholder) {
-	var temperatureEl = document.createElement("div");
-	temperatureEl.textContent = "Temp: " + placeholder.current.temp + " F";
-	locationEl.appendChild(temperatureEl);
+var showForecastWeather = function (placeholderForecast) {
+	console.log(placeholderForecast);
 
-	var windSpeedEl = document.createElement("div");
-	windSpeedEl.textContent = "Wind: " + placeholder.current.wind_speed;
-	locationEl.appendChild(windSpeedEl);
-
-	var humidityEl = document.createElement("div");
-	humidityEl.textContent = "Humidity: " + placeholder.current.humidity;
-	locationEl.appendChild(humidityEl);
-
-	var uviEl = document.createElement("div");
-	uviEl.textContent = "UV Index: " + placeholder.current.uvi;
-	locationEl.appendChild(uviEl);
-};
-
-var forecastWeather = function () {
 	for (i = 0; i < 40; i += 8) {
-		// create each of the containers and assign bootstrap
-		// attend all information as child to the container
+		var cardEl = document.createElement("div");
+		cardEl.setAttribute("class", "border border-dark rounded");
+		forecastEl.appendChild(cardEl);
 
-		var temperatureEl = document.createElement("div");
-		temperatureEl.textContent = "Temp: " + placeholder.current.temp + " F";
-		locationEl.appendChild(temperatureEl);
+		var dateForecastEl = document.createElement("div");
+		dateForecastEl.textContent = placeholderForecast.list[i].dt_txt;
+		cardEl.appendChild(dateForecastEl);
 
-		var windSpeedEl = document.createElement("div");
-		windSpeedEl.textContent = "Wind: " + placeholder.current.wind_speed;
-		locationEl.appendChild(windSpeedEl);
+		var imgForecastEl = document.createElement("img");
+		imgForecastEl.setAttribute(
+			"src",
+			`http://openweathermap.org/img/wn/${placeholderForecast.list[i].weather[0].icon}@2x.png`
+		);
+		cardEl.appendChild(imgForecastEl);
 
-		var humidityEl = document.createElement("div");
-		humidityEl.textContent = "Humidity: " + placeholder.current.humidity;
-		locationEl.appendChild(humidityEl);
+		var temperatureForecastEl = document.createElement("div");
+		temperatureForecastEl.textContent =
+			"Temp: " + placeholderForecast.list[i].main.temp + " K";
+		cardEl.appendChild(temperatureForecastEl);
 
-		var uviEl = document.createElement("div");
-		uviEl.textContent = "UV Index: " + placeholder.current.uvi;
-		locationEl.appendChild(uviEl);
+		var windSpeedForecastEl = document.createElement("div");
+		windSpeedForecastEl.textContent =
+			"Wind: " + placeholderForecast.list[i].wind.speed + " MPH";
+		cardEl.appendChild(windSpeedForecastEl);
+
+		var humidityForecastEl = document.createElement("div");
+		humidityForecastEl.textContent =
+			"Humidity: " + placeholderForecast.list[i].main.humidity + " %";
+		cardEl.appendChild(humidityForecastEl);
 	}
 };
 
@@ -190,7 +194,7 @@ var getCityWeather = function (cityLat, cityLon) {
 	fetch(forecastUrl).then(function (response2) {
 		if (response2.ok) {
 			response2.json().then(function (weatherDetails) {
-				forecastWeather(weatherDetails);
+				showForecastWeather(weatherDetails);
 			});
 		}
 	});
@@ -199,3 +203,5 @@ var getCityWeather = function (cityLat, cityLon) {
 //5 day will basically follow same format as city weather, except we have to create 5 different containers, basically 1 extra step in creating the container for 5 day
 getCityName();
 renderCityHistory();
+
+// the forecast isnt going away

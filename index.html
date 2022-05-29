@@ -21,26 +21,30 @@
 		<header class="jumbotron align-text-center">
 			<h1 class="display-4">Weather Dashboard</h1>
 		</header>
+		<div class="container-fluid">
+			<div class="row">
+				<section class="col-lg-3">
+					<h2>Search for a City:</h2>
+					<input type="text" name="city" id="city" placeholder="City Name" />
+					<button id="searchBtn">Search</button>
+					<div id="cityHistory"></div>
+				</section>
 
-		<section class="col">
-			<h2>Search for a City:</h2>
-			<input type="text" name="city" id="city" placeholder="City Name" />
-			<button id="searchBtn">Search</button>
-			<div id="cityHistory"></div>
-		</section>
-
-		<section class="info col">
-			<div
-				id="location"
-				class="location-container border-0 border-dark rounded bg-dark text-white"
-			></div>
-			<div
-				id="forecast"
-				class="forecast-container border-0 border-dark rounded"
-			>
-				<div class="forecast-child border-0 border-dark rounded"></div>
+				<section class="info col-lg-9">
+					<div
+						id="location"
+						class="location-container rounded bg-info text-white"
+					></div>
+					<div
+						id="forecast"
+						class="forecast-container row justify-content-around"
+					>
+						<div class="forecast-child border-0 border-dark rounded"></div>
+					</div>
+				</section>
 			</div>
-		</section>
+		</div>
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.24.0/moment.min.js"></script>
 		<script src="./assets/js/script.js"></script>
 	</body>
 </html>
