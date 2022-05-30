@@ -80,7 +80,7 @@ var getCoordinates = function (cityName) {
 	locationEl.textContent = "";
 	forecastEl.textContent = "";
 	var coordinates =
-		"http://api.openweathermap.org/geo/1.0/direct?q=" +
+		"https://api.openweathermap.org/geo/1.0/direct?q=" +
 		cityName +
 		"&appid=72089c6cb9be7989ea34e3e3aad0d5ed";
 
@@ -103,7 +103,7 @@ var showCityWeather = function (placeholder) {
 	var imgEl = document.createElement("img");
 	imgEl.setAttribute(
 		"src",
-		`http://openweathermap.org/img/wn/${placeholder.current.weather[0].icon}@2x.png`
+		`https://openweathermap.org/img/wn/${placeholder.current.weather[0].icon}@2x.png`
 	);
 	locationEl.appendChild(imgEl);
 
@@ -151,7 +151,7 @@ var showForecastWeather = function (placeholderForecast) {
 		var imgForecastEl = document.createElement("img");
 		imgForecastEl.setAttribute(
 			"src",
-			`http://openweathermap.org/img/wn/${placeholderForecast.list[i].weather[0].icon}@2x.png`
+			`https://openweathermap.org/img/wn/${placeholderForecast.list[i].weather[0].icon}@2x.png`
 		);
 		cardEl.appendChild(imgForecastEl);
 
